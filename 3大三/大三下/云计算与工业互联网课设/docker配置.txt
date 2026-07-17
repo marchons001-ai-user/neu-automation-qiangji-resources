@@ -1,0 +1,235 @@
+marchons@marchons-virtual-machine:~/Desktop$ sudo apt-get update
+[sudo] password for marchons: 
+Hit:1 http://mirrors.tuna.tsinghua.edu.cn/ubuntu focal InRelease
+Hit:2 http://mirrors.tuna.tsinghua.edu.cn/ubuntu focal-updates InRelease
+Hit:3 http://mirrors.tuna.tsinghua.edu.cn/ubuntu focal-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu focal-security InRelease
+Reading package lists... Done
+marchons@marchons-virtual-machine:~/Desktop$ sudo apt-get install ca-certificates curl gnupg
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+ca-certificates is already the newest version (20240203~20.04.1).
+ca-certificates set to manually installed.
+curl is already the newest version (7.68.0-1ubuntu2.25).
+gnupg is already the newest version (2.2.19-3ubuntu2.5).
+0 upgraded, 0 newly installed, 0 to remove and 148 not upgraded.
+marchons@marchons-virtual-machine:~/Desktop$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg| sudo gpg --dearmor -o/usr/share/keyrings/docker-archive-keyring.gpg
+marchons@marchons-virtual-machine:~/Desktop$ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+marchons@marchons-virtual-machine:~/Desktop$ echo "deb [arch=$(dpkg --print-architecture)
+> signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]
+> echo "deb [arch=$(dpkg --print-architecture)
+signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]
+deb [arch=amd64
+signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]
+echo deb [arch=amd64
+bash: signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]: No such file or directory
+marchons@marchons-virtual-machine:~/Desktop$ ls -l /usr/share/keyrings/docker-archive-keyring.gpg
+-rw-r--r-- 1 root root 2760 6月   4 14:19 /usr/share/keyrings/docker-archive-keyring.gpg
+marchons@marchons-virtual-machine:~/Desktop$ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+marchons@marchons-virtual-machine:~/Desktop$ sudo apt-get update
+Hit:4 http://security.ubuntu.com/ubuntu focal-security InRelease                                                        
+Hit:1 http://mirrors.tuna.tsinghua.edu.cn/ubuntu focal InRelease                                                        
+Hit:2 http://mirrors.tuna.tsinghua.edu.cn/ubuntu focal-updates InRelease
+Hit:3 http://mirrors.tuna.tsinghua.edu.cn/ubuntu focal-backports InRelease
+Ign:5 https://download.docker.com/linux/ubuntu focal InRelease
+Get:6 https://download.docker.com/linux/ubuntu focal Release [56.8 kB]
+Get:7 https://download.docker.com/linux/ubuntu focal Release.gpg [801 B]
+Get:8 https://download.docker.com/linux/ubuntu focal/stable amd64 Packages [59.9 kB]
+Fetched 117 kB in 3s (35.4 kB/s)    
+Reading package lists... Done
+marchons@marchons-virtual-machine:~/Desktop$ sudo apt-get install docker-ce docker-ce-cli containerd.io
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following additional packages will be installed:
+  docker-buildx-plugin docker-ce-rootless-extras docker-compose-plugin git git-man liberror-perl pigz slirp4netns
+Suggested packages:
+  cgroupfs-mount | cgroup-lite git-daemon-run | git-daemon-sysvinit git-doc git-el git-email git-gui gitk gitweb git-cvs git-mediawiki git-svn
+The following NEW packages will be installed:
+  containerd.io docker-buildx-plugin docker-ce docker-ce-cli docker-ce-rootless-extras docker-compose-plugin git git-man liberror-perl pigz slirp4netns
+0 upgraded, 11 newly installed, 0 to remove and 148 not upgraded.
+Need to get 126 MB of archives.
+After this operation, 478 MB of additional disk space will be used.
+Do you want to continue? [Y/n] Y
+Err:1 https://download.docker.com/linux/ubuntu focal/stable amd64 containerd.io amd64 1.7.27-1
+  Could not handshake: Error in the pull function. [IP: 18.172.31.22 443]
+Get:2 https://download.docker.com/linux/ubuntu focal/stable amd64 docker-buildx-plugin amd64 0.23.0-1~ubuntu.20.04~focal [34.6 MB]
+Get:3 http://mirrors.tuna.tsinghua.edu.cn/ubuntu focal/universe amd64 pigz amd64 2.4-1 [57.4 kB]                 
+Get:4 http://mirrors.tuna.tsinghua.edu.cn/ubuntu focal/main amd64 liberror-perl all 0.17029-1 [26.5 kB]
+Get:5 http://mirrors.tuna.tsinghua.edu.cn/ubuntu focal-updates/main amd64 git-man all 1:2.25.1-1ubuntu3.14 [887 kB]
+Get:6 http://mirrors.tuna.tsinghua.edu.cn/ubuntu focal-updates/main amd64 git amd64 1:2.25.1-1ubuntu3.14 [4,613 kB]
+Get:7 http://mirrors.tuna.tsinghua.edu.cn/ubuntu focal/universe amd64 slirp4netns amd64 0.4.3-1 [74.3 kB]
+Get:8 https://download.docker.com/linux/ubuntu focal/stable amd64 docker-ce-cli amd64 5:28.1.1-1~ubuntu.20.04~focal [15.8 MB]
+Get:9 https://download.docker.com/linux/ubuntu focal/stable amd64 docker-ce amd64 5:28.1.1-1~ubuntu.20.04~focal [19.2 MB]                                                                                                                                  
+Get:10 https://download.docker.com/linux/ubuntu focal/stable amd64 docker-ce-rootless-extras amd64 5:28.1.1-1~ubuntu.20.04~focal [6,097 kB]                                                                                                                
+Get:11 https://download.docker.com/linux/ubuntu focal/stable amd64 docker-compose-plugin amd64 2.35.1-1~ubuntu.20.04~focal [13.8 MB]                                                                                                                       
+Fetched 95.2 MB in 10s (9,454 kB/s)                                                                                                                                                                                                                        
+E: Failed to fetch https://download.docker.com/linux/ubuntu/dists/focal/pool/stable/amd64/containerd.io_1.7.27-1_amd64.deb  Could not handshake: Error in the pull function. [IP: 18.172.31.22 443]
+E: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?
+marchons@marchons-virtual-machine:~/Desktop$ sudo apt-get update
+Hit:1 http://mirrors.tuna.tsinghua.edu.cn/ubuntu focal InRelease                                                                      
+Hit:2 http://mirrors.tuna.tsinghua.edu.cn/ubuntu focal-updates InRelease                                                              
+Hit:4 http://security.ubuntu.com/ubuntu focal-security InRelease                  
+Hit:3 http://mirrors.tuna.tsinghua.edu.cn/ubuntu focal-backports InRelease        
+Get:5 https://download.docker.com/linux/ubuntu focal InRelease [57.7 kB]
+Fetched 57.7 kB in 1s (45.7 kB/s)     
+Reading package lists... Done
+marchons@marchons-virtual-machine:~/Desktop$ sudo apt-get install --fix-missing docker-ce docker-ce-cli containerd.io
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following additional packages will be installed:
+  docker-buildx-plugin docker-ce-rootless-extras docker-compose-plugin git git-man liberror-perl pigz slirp4netns
+Suggested packages:
+  cgroupfs-mount | cgroup-lite git-daemon-run | git-daemon-sysvinit git-doc git-el git-email git-gui gitk gitweb git-cvs git-mediawiki git-svn
+The following NEW packages will be installed:
+  containerd.io docker-buildx-plugin docker-ce docker-ce-cli docker-ce-rootless-extras docker-compose-plugin git git-man liberror-perl pigz slirp4netns
+0 upgraded, 11 newly installed, 0 to remove and 148 not upgraded.
+Need to get 30.5 MB/126 MB of archives.
+After this operation, 478 MB of additional disk space will be used.
+Do you want to continue? [Y/n] y
+Get:1 https://download.docker.com/linux/ubuntu focal/stable amd64 containerd.io amd64 1.7.27-1 [30.5 MB]
+Fetched 30.5 MB in 2s (12.8 MB/s)         
+Selecting previously unselected package pigz.
+(Reading database ... 179468 files and directories currently installed.)
+Preparing to unpack .../00-pigz_2.4-1_amd64.deb ...
+Unpacking pigz (2.4-1) ...
+Selecting previously unselected package containerd.io.
+Preparing to unpack .../01-containerd.io_1.7.27-1_amd64.deb ...
+Unpacking containerd.io (1.7.27-1) ...
+Selecting previously unselected package docker-buildx-plugin.
+Preparing to unpack .../02-docker-buildx-plugin_0.23.0-1~ubuntu.20.04~focal_amd64.deb ...
+Unpacking docker-buildx-plugin (0.23.0-1~ubuntu.20.04~focal) ...
+Selecting previously unselected package docker-ce-cli.
+Preparing to unpack .../03-docker-ce-cli_5%3a28.1.1-1~ubuntu.20.04~focal_amd64.deb ...
+Unpacking docker-ce-cli (5:28.1.1-1~ubuntu.20.04~focal) ...
+Selecting previously unselected package docker-ce.
+Preparing to unpack .../04-docker-ce_5%3a28.1.1-1~ubuntu.20.04~focal_amd64.deb ...
+Unpacking docker-ce (5:28.1.1-1~ubuntu.20.04~focal) ...
+Selecting previously unselected package docker-ce-rootless-extras.
+Preparing to unpack .../05-docker-ce-rootless-extras_5%3a28.1.1-1~ubuntu.20.04~focal_amd64.deb ...
+Unpacking docker-ce-rootless-extras (5:28.1.1-1~ubuntu.20.04~focal) ...
+Selecting previously unselected package docker-compose-plugin.
+Preparing to unpack .../06-docker-compose-plugin_2.35.1-1~ubuntu.20.04~focal_amd64.deb ...
+Unpacking docker-compose-plugin (2.35.1-1~ubuntu.20.04~focal) ...
+Selecting previously unselected package liberror-perl.
+Preparing to unpack .../07-liberror-perl_0.17029-1_all.deb ...
+Unpacking liberror-perl (0.17029-1) ...
+Selecting previously unselected package git-man.
+Preparing to unpack .../08-git-man_1%3a2.25.1-1ubuntu3.14_all.deb ...
+Unpacking git-man (1:2.25.1-1ubuntu3.14) ...
+Selecting previously unselected package git.
+Preparing to unpack .../09-git_1%3a2.25.1-1ubuntu3.14_amd64.deb ...
+Unpacking git (1:2.25.1-1ubuntu3.14) ...
+Selecting previously unselected package slirp4netns.
+Preparing to unpack .../10-slirp4netns_0.4.3-1_amd64.deb ...
+Unpacking slirp4netns (0.4.3-1) ...
+Setting up slirp4netns (0.4.3-1) ...
+Setting up liberror-perl (0.17029-1) ...
+Setting up docker-buildx-plugin (0.23.0-1~ubuntu.20.04~focal) ...
+Setting up containerd.io (1.7.27-1) ...
+Created symlink /etc/systemd/system/multi-user.target.wants/containerd.service → /lib/systemd/system/containerd.service.
+Setting up docker-compose-plugin (2.35.1-1~ubuntu.20.04~focal) ...
+Setting up docker-ce-cli (5:28.1.1-1~ubuntu.20.04~focal) ...
+Setting up pigz (2.4-1) ...
+Setting up git-man (1:2.25.1-1ubuntu3.14) ...
+Setting up docker-ce-rootless-extras (5:28.1.1-1~ubuntu.20.04~focal) ...
+Setting up docker-ce (5:28.1.1-1~ubuntu.20.04~focal) ...
+Created symlink /etc/systemd/system/multi-user.target.wants/docker.service → /lib/systemd/system/docker.service.
+Created symlink /etc/systemd/system/sockets.target.wants/docker.socket → /lib/systemd/system/docker.socket.
+Setting up git (1:2.25.1-1ubuntu3.14) ...
+Processing triggers for man-db (2.9.1-1) ...
+Processing triggers for systemd (245.4-4ubuntu3.20) ...
+marchons@marchons-virtual-machine:~/Desktop$ sudo docker --version
+Docker version 28.1.1, build 4eba377
+marchons@marchons-virtual-machine:~/Desktop$ sudo docker pull hello-world
+Using default tag: latest
+sudo docError response from daemon: Get "https://registry-1.docker.io/v2/": context deadline exceeded
+marchons@marchons-virtual-machine:~/Desktop$ sudo docker run --name hello hello-world:latest
+Unable to find image 'hello-world:latest' locally
+docker: Error response from daemon: Get "https://registry-1.docker.io/v2/": context deadline exceeded
+
+Run 'docker run --help' for more information
+marchons@marchons-virtual-machine:~/Desktop$ ^C
+marchons@marchons-virtual-machine:~/Desktop$ sudo docker --version
+Docker version 28.1.1, build 4eba377
+marchons@marchons-virtual-machine:~/Desktop$ sudo docker pull hello-world
+Using default tag: latest
+Error response from daemon: Get "https://registry-1.docker.io/v2/": context deadline exceeded
+marchons@marchons-virtual-machine:~/Desktop$ sudo docker pull hello-world
+Using default tag: latest
+Error response from daemon: Get "https://registry-1.docker.io/v2/": net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+marchons@marchons-virtual-machine:~/Desktop$ curl -I https://registry-1.docker.io/v2/
+curl: (7) Failed to connect to registry-1.docker.io port 443: Connection refused
+marchons@marchons-virtual-machine:~/Desktop$ curl -I https://registry-1.docker.io/v2/
+
+curl: (7) Failed to connect to registry-1.docker.io port 443: Connection refused
+marchons@marchons-virtual-machine:~/Desktop$ 
+marchons@marchons-virtual-machine:~/Desktop$ curl -x http://192.168.88.1:7890 -I https://registry-1.docker.io/v2/
+HTTP/1.1 200 Connection established
+
+HTTP/2 401 
+date: Thu, 04 Jun 2026 06:46:22 GMT
+content-type: application/json
+content-length: 87
+docker-distribution-api-version: registry/2.0
+www-authenticate: Bearer realm="https://auth.docker.io/token",service="registry.docker.io"
+strict-transport-security: max-age=31536000
+
+marchons@marchons-virtual-machine:~/Desktop$ sudo mkdir -p /etc/systemd/system/docker.service.d
+marchons@marchons-virtual-machine:~/Desktop$ sudo tee /etc/systemd/system/docker.service.d/http-proxy.conf > /dev/null <<EOF
+> [Service]
+> Environment="HTTP_PROXY=http://192.168.88.1:7890"
+> Environment="HTTPS_PROXY=http://192.168.88.1:7890"
+> Environment="NO_PROXY=localhost,127.0.0.1"
+> EOF
+marchons@marchons-virtual-machine:~/Desktop$ sudo systemctl daemon-reload
+marchons@marchons-virtual-machine:~/Desktop$ sudo systemctl restart docker
+marchons@marchons-virtual-machine:~/Desktop$ sudo systemctl show --property=Environment docker
+Environment=HTTP_PROXY=http://192.168.88.1:7890 HTTPS_PROXY=http://192.168.88.1:7890 NO_PROXY=localhost,127.0.0.1
+marchons@marchons-virtual-machine:~/Desktop$ sudo docker pull hello-world
+Using default tag: latest
+latest: Pulling from library/hello-world
+4f55086f7dd0: Pull complete 
+Digest: sha256:0e760fdfbc48ba8041e7c6db999bb40bfca508b4be580ac75d32c4e29d202ce1
+Status: Downloaded newer image for hello-world:latest
+docker.io/library/hello-world:latest
+marchons@marchons-virtual-machine:~/Desktop$ sudo docker run --name hello hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
+
+marchons@marchons-virtual-machine:~/Desktop$ docker compose version
+Docker Compose version v2.35.1
+marchons@marchons-virtual-machine:~/Desktop$ docker-compose --version
+
+Command 'docker-compose' not found, but can be installed with:
+
+sudo snap install docker          # version 29.3.1, or
+sudo apt  install docker-compose  # version 1.25.0-1
+
+See 'snap info docker' for additional versions.
+
+marchons@marchons-virtual-machine:~/Desktop$ sudo docker ps -a
+CONTAINER ID   IMAGE                COMMAND    CREATED         STATUS                     PORTS     NAMES
+cdb643851c2e   hello-world:latest   "/hello"   6 minutes ago   Exited (0) 6 minutes ago             hello
+marchons@marchons-virtual-machine:~/Desktop$ 

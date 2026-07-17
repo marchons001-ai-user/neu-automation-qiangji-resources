@@ -1,0 +1,214 @@
+\documentclass[UTF8,a4paper,zihao=-4]{ctexart}
+
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+
+\geometry{left=2.6cm,right=2.6cm,top=2.5cm,bottom=2.5cm}
+\definecolor{mainblue}{RGB}{32,83,140}
+\definecolor{lightblue}{RGB}{232,241,250}
+\definecolor{deepgray}{RGB}{70,70,70}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=mainblue,
+  urlcolor=mainblue,
+  citecolor=mainblue
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\setlength{\headheight}{15pt}
+\fancyhead[L]{云计算与工业互联网}
+\fancyhead[R]{网络控制系统关键技术分析}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\section}{\Large\bfseries\color{mainblue}}{\thesection}{0.8em}{}
+\titleformat{\subsection}{\large\bfseries\color{deepgray}}{\thesubsection}{0.8em}{}
+\setlist[itemize]{leftmargin=2em,itemsep=0.2em,topsep=0.3em}
+\setlist[enumerate]{leftmargin=2em,itemsep=0.2em,topsep=0.3em}
+\renewcommand{\arraystretch}{1.25}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.25em}
+\setlength{\emergencystretch}{3em}
+\linespread{1.25}
+
+\newcommand{\infoitem}[2]{\textbf{#1} & #2 \\}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{1.2cm}
+  \includegraphics[width=0.78\linewidth]{figures/cover_logo.png}\par
+  \vspace{1.0cm}
+  {\zihao{2}\heiti 云计算与工业互联网\par}
+  \vspace{0.8cm}
+  {\zihao{3}\heiti 作业一\par}
+  \vspace{1.2cm}
+  {\zihao{1}\heiti 网络控制系统关键技术分析\par}
+  \vspace{1.0cm}
+  \vfill
+  \begin{tabular}{rl}
+    组长： & 匿名 \\[0.45em]
+    组员： & 同学A \\[0.45em]
+    学号： &  \\[0.45em]
+    学院： & 信息科学与工程学院 \\[0.45em]
+  \end{tabular}
+  \vfill
+  {\zihao{4}2026年6月5日\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{引言}
+
+网络控制系统（Networked Control System，NCS）是指传感器、控制器和执行器不再完全依靠本地硬接线连接，而是通过通信网络交换数据并构成闭环控制的系统。在传统控制系统中，采样信号、控制算法和执行动作往往位于同一设备或同一控制柜内；而在工业互联网环境下，设备数量更多、空间分布更广，控制数据需要经过工业以太网、无线网络、边缘节点或云平台进行传输和处理。
+
+结合课程中关于云计算、工业互联网和网络通信基础的内容，可以把网络控制系统理解为工业互联网“感知、传输、计算、控制”链条中的核心环节。它既要满足控制系统对实时性和稳定性的要求，也要面对网络通信中的时延、丢包、带宽竞争和安全风险。因此，网络控制系统的关键技术不仅是单纯的控制算法问题，也包括网络通信、边缘计算、系统可靠性和信息安全等多个方面。
+
+本文选择两个较基础但覆盖面较完整的关键点进行分析：第一是实时通信与网络服务质量保障，第二是时延、丢包与安全风险下的稳定可靠控制。最后结合智能制造产线举例说明这些技术如何落到实际应用中。
+
+\section{网络控制系统的基本结构}
+
+网络控制系统通常由传感器节点、控制器节点、执行器节点和通信网络组成。传感器负责采集温度、压力、位置、速度、电流等状态量；控制器根据采样数据计算控制量；执行器根据控制指令驱动电机、阀门、机器人或生产设备动作；通信网络则承担状态数据与控制指令的传输。
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    box/.style={draw=mainblue, fill=lightblue, rounded corners=3pt, minimum width=2.6cm, minimum height=1.0cm, align=center},
+    net/.style={draw=deepgray, fill=white, minimum width=2.8cm, minimum height=1.0cm, align=center},
+    arrow/.style={-Latex, thick, color=mainblue}
+  ]
+    \node[box] at (0,0) (sensor) {传感器\\采集状态};
+    \node[net] at (3.8,0) (network1) {通信网络\\工业以太网/5G};
+    \node[box] at (7.6,0) (controller) {控制器\\边缘/PLC};
+    \node[net] at (7.6,-2.4) (network2) {通信网络\\控制指令传输};
+    \node[box] at (3.8,-2.4) (actuator) {执行器\\驱动设备};
+    \node[box] at (0,-2.4) (plant) {被控对象\\产线/设备};
+    \draw[arrow] (sensor.east) -- (network1.west);
+    \draw[arrow] (network1.east) -- (controller.west);
+    \draw[arrow] (controller.south) -- (network2.north);
+    \draw[arrow] (network2.west) -- (actuator.east);
+    \draw[arrow] (actuator.west) -- (plant.east);
+    \draw[arrow] (plant.north) -- ++(0,0.7) -| (sensor.south);
+  \end{tikzpicture}
+  \caption{网络控制系统的典型闭环结构}
+\end{figure}
+
+与普通网络应用相比，网络控制系统的特点更强调“闭环”。普通数据通信只要最终把数据送到即可，而控制系统要求数据在规定时间内到达，并且要保证控制动作不会破坏系统稳定性。例如机械臂控制、自动化产线调度、无人仓储搬运车控制等场景，都要求传感器信息、控制决策和执行动作能够连续配合。
+
+\section{关键技术一：实时通信与网络服务质量保障}
+
+\subsection{技术内涵}
+
+实时通信是网络控制系统最基础的关键技术。控制器需要按照固定或近似固定的周期获取状态信息，如果网络传输出现较大延迟或抖动，控制器获得的数据就可能已经过期，执行器收到的指令也可能错过最佳作用时刻。因此，网络控制系统通常关注以下几个指标：
+
+\begin{itemize}
+  \item \textbf{时延：} 数据从传感器到控制器、从控制器到执行器所经历的传输时间。
+  \item \textbf{抖动：} 不同数据包传输时延的波动程度，抖动过大容易造成控制节奏不稳定。
+  \item \textbf{丢包率：} 数据包在网络中未能成功到达的比例，丢包会导致状态缺失或控制指令缺失。
+  \item \textbf{带宽与优先级：} 多个设备同时通信时，关键控制数据应优先于普通监测数据。
+\end{itemize}
+
+在工业互联网中，大量传感器、控制器、网关和云平台同时接入网络。如果不区分数据类型，控制数据可能与视频监控、日志上传、设备报表等业务争用带宽，造成实时性下降。因此，网络控制系统需要通过网络服务质量（QoS）保障、时间同步、流量调度和边缘计算等方式，让关键控制数据优先、准时、稳定地传输。
+
+\subsection{常见实现方式}
+
+第一，采用工业以太网、时间敏感网络（TSN）等技术提高通信确定性。它们通过时间同步、流量整形和优先级调度，使关键数据在预定时间窗口内传输，减少不确定等待时间。
+
+第二，在靠近设备的位置部署边缘控制器。课程中的云计算思想强调资源集中和弹性计算，但工业控制不能把所有闭环决策都放到远端云端。比较合理的做法是“云边协同”：云平台负责数据分析、模型训练、设备管理和长期优化，边缘节点或PLC负责毫秒级、秒级的现场控制。
+
+第三，对网络流量进行分类。周期性控制数据、报警数据、视频数据、设备日志的实时性要求不同，应采用不同优先级和传输策略。这样既能利用工业互联网的互联优势，又不会让非关键业务影响控制闭环。
+
+\section{关键技术二：时延、丢包与安全风险下的稳定可靠控制}
+
+\subsection{时延与丢包对控制稳定性的影响}
+
+网络控制系统的难点在于网络不是理想通道。控制理论中常假设采样数据和控制指令可以按时到达，但实际网络可能出现随机时延、连续丢包和通信中断。若控制器使用过期数据计算控制量，系统可能产生超调、振荡甚至失稳。例如电机速度控制中，如果速度反馈延迟过大，控制器会根据旧状态继续加速或减速，导致速度波动变大。
+
+因此，网络控制系统需要在控制算法中考虑网络因素。常见方法包括：
+
+\begin{itemize}
+  \item \textbf{时延补偿：} 根据已知或估计的时延修正控制量，减少过期数据带来的影响。
+  \item \textbf{状态预测：} 当新数据尚未到达时，根据系统模型预测当前状态。
+  \item \textbf{丢包处理：} 对偶发丢包可使用上一时刻数据、插值数据或预测数据维持控制。
+  \item \textbf{事件触发控制：} 不一定每个周期都发送数据，而是在状态变化明显时发送，减少网络负载。
+\end{itemize}
+
+这些方法的共同目标是：即使网络通信不完美，系统仍能保持可接受的控制性能和稳定性。
+
+\subsection{可靠性与安全保障}
+
+工业控制系统一旦出现故障，影响的不只是信息系统本身，还可能影响生产设备、产品质量和人员安全。因此，网络控制系统必须考虑可靠性和安全性。
+
+可靠性方面，可以通过冗余通信链路、关键节点备份、故障检测和降级控制来提高系统可用性。例如当主通信链路异常时，系统切换到备用链路；当边缘控制器与云平台断开时，本地PLC仍能维持基本控制；当传感器数据异常时，控制器进入保守模式，避免继续执行危险动作。
+
+安全性方面，工业互联网扩大了设备连接范围，也带来了身份冒用、数据篡改、恶意控制指令和网络攻击等风险。网络控制系统中的安全措施包括设备身份认证、访问权限控制、数据加密、异常流量检测和安全审计等。对于关键控制指令，还需要保证来源可信、内容未被篡改，并且指令符合设备运行约束。
+
+\section{应用举例：智能制造产线控制}
+
+以一条智能制造产线为例，产线上有机械臂、传送带、视觉检测设备、温度和压力传感器，以及负责现场控制的PLC或边缘控制器。系统运行时，传感器和视觉设备持续采集产品位置、设备状态和质量检测结果，边缘控制器根据这些数据计算控制指令，再通过工业网络发送给机械臂和传送带。
+
+在这个例子中，实时通信技术保证机械臂能够在产品到达指定位置时及时抓取或装配。如果网络时延过大，机械臂可能错过工件位置，造成装配失败。QoS和优先级调度可以让机械臂控制指令优先传输，而把设备日志、统计报表等非实时数据放到较低优先级。
+
+稳定可靠控制技术则用于处理异常情况。例如视觉检测数据短时丢失时，系统可以根据传送带速度预测工件位置；如果连续丢包或传感器数据明显异常，控制器可以降低产线速度或暂停机械臂动作；如果云平台连接中断，边缘控制器仍然按照本地规则维持基本生产。这样既体现了工业互联网的互联互通，也避免对远端云平台形成过度依赖。
+
+\begin{table}[htbp]
+  \centering
+  \caption{智能制造产线中关键技术的作用}
+  \begin{tabularx}{0.92\textwidth}{>{\bfseries}p{3.2cm}X}
+    \toprule
+    关键技术 & 具体作用 \\
+    \midrule
+    实时通信与QoS & 保证传感器数据和控制指令按时传输，减少时延和抖动对闭环控制的影响。 \\
+    边缘控制 & 将关键控制逻辑放在靠近设备的位置，降低对远端云平台的依赖。 \\
+    时延与丢包补偿 & 在网络不稳定时利用预测、插值或上一时刻数据维持控制连续性。 \\
+    安全与可靠性保障 & 通过认证、权限控制、冗余和故障降级减少安全风险和停机风险。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{结论}
+
+网络控制系统是工业互联网中连接物理设备、通信网络和计算平台的重要系统。它的关键问题不只是“能不能通信”，而是“能不能在规定时间内可靠、安全地完成闭环控制”。结合课程内容可以看出，实时通信与网络服务质量保障解决的是控制数据传输的确定性问题；时延、丢包与安全风险下的稳定可靠控制解决的是网络不理想情况下系统能否继续安全运行的问题。
+
+在实际应用中，网络控制系统通常不会单独依赖某一种技术，而是把工业网络、边缘计算、控制算法、可靠性设计和安全防护结合起来。对于智能制造、远程设备监控、过程工业控制等场景，这种综合设计能够提升生产效率、降低维护成本，并增强系统面对异常情况时的稳定性。
+
+\clearpage
+\section*{小组贡献权重}
+\addcontentsline{toc}{section}{小组贡献权重}
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{>{\bfseries}c c c}
+    \toprule
+    姓名 & 主要贡献 & 权重系数 \\
+    \midrule
+    匿名 & 资料整理、主题确定、内容统稿 & 0.50 \\
+    同学A & 案例分析、文字润色、格式检查 & 0.50 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section*{参考文献}
+\addcontentsline{toc}{section}{参考文献}
+\begin{enumerate}
+  \item 课程课件：《云计算与工业互联网》《网络通信基础》《云计算基础》。
+  \item 胡寿松. 自动控制原理. 北京：科学出版社.
+  \item 刘国平，王洪瑞. 网络控制系统的研究现状与发展. 控制理论与应用.
+  \item IEEE 802.1 Time-Sensitive Networking 相关标准资料.
+\end{enumerate}
+
+\end{document}
