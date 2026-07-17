@@ -1,0 +1,16 @@
+* text=auto
+
+*.doc binary
+*.docx binary
+*.ppt binary
+*.pptx binary
+*.xls binary
+*.xlsx binary
+*.pdf binary
+*.zip binary
+*.rar binary
+*.7z binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary

@@ -1,0 +1,560 @@
+#include "STC8H.H"
+#include "intrins.h"
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+
+// 宏定义
+#define FOSC 11059200UL  // 11.0592MHz系统时钟
+#define BAUD 9600UL      // 波特率9600
+
+// MPU6050引脚定义
+sbit SDA = P3^3;
+sbit SCL = P3^2;
+
+// MPU6050寄存器地址定义
+#define MPU6050_ADDR 0xD0  // MPU6050设备地址
+#define SMPLRT_DIV 0x19
+#define CONFIG 0x1A
+#define GYRO_CONFIG 0x1B
+#define ACCEL_CONFIG 0x1C
+#define ACCEL_XOUT_H 0x3B
+#define ACCEL_XOUT_L 0x3C
+#define ACCEL_YOUT_H 0x3D
+#define ACCEL_YOUT_L 0x3E
+#define ACCEL_ZOUT_H 0x3F
+#define ACCEL_ZOUT_L 0x40
+#define TEMP_OUT_H 0x41
+#define TEMP_OUT_L 0x42
+#define GYRO_XOUT_H 0x43
+#define GYRO_XOUT_L 0x44
+#define GYRO_YOUT_H 0x45
+#define GYRO_YOUT_L 0x46
+#define GYRO_ZOUT_H 0x47
+#define GYRO_ZOUT_L 0x48
+#define PWR_MGMT_1 0x6B
+#define WHO_AM_I 0x75
+
+// 全局变量
+unsigned int count = 0;
+short acc_x, acc_y, acc_z;     // 加速度数据
+short gyro_x, gyro_y, gyro_z;  // 陀螺仪数据
+short temp;                    // 温度数据
+bit timer_flag = 0;           // 定时器标志位
+
+// 定时器0初始化 - 精确100ms定时
+void Timer0_Init(void)
+{
+    // 设置定时器0为16位自动重装载模式
+    TMOD &= 0xF0;     // 清除定时器0模式位
+    TMOD |= 0x01;     // 设置定时器0为模式1(16位定时器)
+    
+    // 计算100ms定时初值
+    // 系统时钟11.0592MHz，定时器时钟为FOSC/12 = 921.6kHz
+    // 100ms需要计数次数 = 100000us / (12/11.0592) ≈ 92160次
+    // 定时器初值 = 65536 - 92160 = 无法直接实现，需要分频
+    
+    // 使用50ms定时，计数2次实现100ms
+    // 50ms需要计数次数 = 50000us / (12/11.0592) = 46080次
+    TH0 = (65536 - 46080) / 256;  // 高8位
+    TL0 = (65536 - 46080) % 256;  // 低8位
+    
+    ET0 = 1;        // 使能定时器0中断
+    TR0 = 1;        // 启动定时器0
+    EA = 1;         // 开启总中断
+}
+
+// 定时器0中断服务函数
+void Timer0_ISR(void) interrupt 1
+{
+    static unsigned char timer_count = 0;
+    
+    // 重新装载初值
+    TH0 = (65536 - 46080) / 256;
+    TL0 = (65536 - 46080) % 256;
+    
+    timer_count++;
+    if(timer_count >= 2)  // 50ms * 2 = 100ms
+    {
+        timer_count = 0;
+        timer_flag = 1;  // 设置100ms标志
+    }
+}
+
+// 延时函数（毫秒级）- 仅用于初始化
+void DelayMS(unsigned int ms)
+{
+    unsigned int i, j;
+    for(i = 0; i < ms; i++)
+        for(j = 0; j < 1100; j++)
+            _nop_();
+}
+
+// 延时函数（微秒级）- 用于I2C时序
+void DelayUS(unsigned int us)
+{
+    while(us--)
+    {
+        _nop_();_nop_();_nop_();_nop_();
+        _nop_();_nop_();_nop_();_nop_();
+    }
+}
+
+// 串口初始化
+void Uart1_Init(void)
+{
+    // 关闭看门狗
+    WDT_CONTR = 0;
+    
+    // 配置P3.0(RxD)和P3.1(TxD)引脚模式
+    P3M1 |= 0x01;   // P3.0(RxD)设置为高阻输入
+    P3M0 &= ~0x01;
+    P3M1 &= ~0x02;  // P3.1(TxD)设置为推挽输出
+    P3M0 |= 0x02;
+    
+    // 确保使用正确的引脚映射（串口1在P3.0/P3.1）
+    P_SW1 &= 0x3F;  // 清除UART1引脚选择位，选择P3.0/P3.1
+    
+    SCON = 0x50;    // 8位数据,可变波特率
+    AUXR |= 0x40;   // 定时器时钟1T模式
+    AUXR &= 0xFE;   // 串口1选择定时器1为波特率发生器
+    TMOD &= 0x0F;   // 设置定时器模式
+    TL1 = 0xE0;     // 设置定时初始值
+    TH1 = 0xFE;     // 设置定时初始值
+    ET1 = 0;        // 禁止定时器1中断
+    TR1 = 1;        // 定时器1开始计时
+}
+
+// 发送单个字节
+void UART_SendByte(unsigned char dat)
+{
+    SBUF = dat;
+    while (!TI);   // 等待发送完成
+    TI = 0;        // 清除发送完成标志
+}
+
+// 发送字符串
+void UART_SendString(char *str)
+{
+    while (*str) {
+        UART_SendByte(*str++);
+    }
+}
+
+// 重定向putchar函数，支持printf
+char putchar(char c)
+{
+    UART_SendByte(c);
+    return c;
+}
+
+// I2C初始化
+void I2C_Init(void)
+{
+    // 将P3.2(SCL)和P3.3(SDA)设置为开漏输出模式
+    P3M1 |= (1<<2 | 1<<3);   // 高阻输入特性
+    P3M0 |= (1<<2 | 1<<3);   // 开漏输出
+    
+    SCL = 1;
+    SDA = 1;
+    
+    // 添加初始化延时
+    DelayMS(10);
+}
+
+// I2C起始信号
+void I2C_Start(void)
+{
+    SDA = 1;
+    DelayUS(10);
+    SCL = 1;
+    DelayUS(10);
+    SDA = 0;
+    DelayUS(10);
+    SCL = 0;
+    DelayUS(10);
+}
+
+// I2C停止信号
+void I2C_Stop(void)
+{
+    SDA = 0;
+    DelayUS(10);
+    SCL = 1;
+    DelayUS(10);
+    SDA = 1;
+    DelayUS(10);
+}
+
+// I2C发送字节
+void I2C_SendByte(unsigned char dat)
+{
+    unsigned char i;
+    for(i = 0; i < 8; i++)
+    {
+        SDA = (dat & 0x80) ? 1 : 0;
+        dat <<= 1;
+        DelayUS(5);
+        SCL = 1;
+        DelayUS(10);
+        SCL = 0;
+        DelayUS(5);
+    }
+}
+
+// I2C接收字节
+unsigned char I2C_RecvByte(void)
+{
+    unsigned char i, dat = 0;
+    
+    // 确保SDA为输入模式
+    P3M1 |= (1<<3);   // P3.3设置为高阻输入
+    P3M0 &= ~(1<<3);
+    
+    SDA = 1;  // 释放SDA线
+    
+    for(i = 0; i < 8; i++)
+    {
+        dat <<= 1;
+        DelayUS(5);
+        SCL = 1;
+        DelayUS(10);
+        if(SDA) dat |= 0x01;
+        SCL = 0;
+        DelayUS(5);
+    }
+    
+    // 恢复SDA为输出模式
+    P3M1 |= (1<<3);
+    P3M0 |= (1<<3);
+    
+    return dat;
+}
+
+// I2C发送应答
+void I2C_Ack(void)
+{
+    // 确保SDA为输出模式
+    P3M1 |= (1<<3);
+    P3M0 |= (1<<3);
+    
+    SDA = 0;
+    DelayUS(5);
+    SCL = 1;
+    DelayUS(10);
+    SCL = 0;
+    DelayUS(5);
+    SDA = 1;
+    DelayUS(5);
+}
+
+// I2C发送非应答
+void I2C_NAck(void)
+{
+    // 确保SDA为输出模式
+    P3M1 |= (1<<3);
+    P3M0 |= (1<<3);
+    
+    SDA = 1;
+    DelayUS(5);
+    SCL = 1;
+    DelayUS(10);
+    SCL = 0;
+    DelayUS(5);
+}
+
+// I2C等待应答
+unsigned char I2C_WaitAck(void)
+{
+    unsigned char ack;
+    
+    // 设置SDA为输入模式
+    P3M1 |= (1<<3);   // 高阻输入
+    P3M0 &= ~(1<<3);
+    
+    SDA = 1;  // 释放SDA线
+    DelayUS(5);
+    SCL = 1;
+    DelayUS(10);
+    ack = SDA;  // 读取应答信号
+    SCL = 0;
+    DelayUS(5);
+    
+    // 恢复SDA为输出模式
+    P3M1 |= (1<<3);
+    P3M0 |= (1<<3);
+    
+    return ack;  // 0-应答, 1-非应答
+}
+
+// MPU6050写寄存器
+bit MPU6050_WriteReg(unsigned char reg_addr, unsigned char dat)
+{
+    bit ack_flag;
+    
+    I2C_Start();
+    I2C_SendByte(MPU6050_ADDR);
+    ack_flag = I2C_WaitAck();
+    if(ack_flag) {
+        I2C_Stop();
+        return 0;  // 写入失败
+    }
+    
+    I2C_SendByte(reg_addr);
+    ack_flag = I2C_WaitAck();
+    if(ack_flag) {
+        I2C_Stop();
+        return 0;  // 写入失败
+    }
+    
+    I2C_SendByte(dat);
+    ack_flag = I2C_WaitAck();
+    I2C_Stop();
+    
+    return (ack_flag == 0);  // 返回写入状态
+}
+
+// MPU6050读寄存器
+unsigned char MPU6050_ReadReg(unsigned char reg_addr)
+{
+    unsigned char dat;
+    bit ack_flag;
+    
+    I2C_Start();
+    I2C_SendByte(MPU6050_ADDR);
+    ack_flag = I2C_WaitAck();
+    if(ack_flag) {
+        I2C_Stop();
+        return 0xFF;  // 读取失败
+    }
+    
+    I2C_SendByte(reg_addr);
+    ack_flag = I2C_WaitAck();
+    if(ack_flag) {
+        I2C_Stop();
+        return 0xFF;  // 读取失败
+    }
+    
+    I2C_Start();
+    I2C_SendByte(MPU6050_ADDR | 0x01);
+    ack_flag = I2C_WaitAck();
+    if(ack_flag) {
+        I2C_Stop();
+        return 0xFF;  // 读取失败
+    }
+    
+    dat = I2C_RecvByte();
+    I2C_NAck();
+    I2C_Stop();
+    
+    return dat;
+}
+
+// MPU6050初始化
+bit MPU6050_Init(void)
+{
+    unsigned char i;
+    unsigned char id;
+    
+    DelayMS(100);  // 上电延时
+    
+    // 尝试多次读取设备ID
+    for(i = 0; i < 5; i++) {
+        id = MPU6050_ReadReg(WHO_AM_I);
+        if(id == 0x68) {
+            break;
+        }
+        DelayMS(10);
+    }
+    
+    if(id != 0x68) {
+        return 0;  // 初始化失败
+    }
+    
+    // 解除休眠状态
+    if(!MPU6050_WriteReg(PWR_MGMT_1, 0x00)) {
+        return 0;
+    }
+    DelayMS(10);
+    
+    // 设置采样率
+    if(!MPU6050_WriteReg(SMPLRT_DIV, 0x07)) {
+        return 0;
+    }
+    
+    // 设置数字低通滤波器
+    if(!MPU6050_WriteReg(CONFIG, 0x06)) {
+        return 0;
+    }
+    
+    // 设置陀螺仪量程 ±2000度/秒
+    if(!MPU6050_WriteReg(GYRO_CONFIG, 0x18)) {
+        return 0;
+    }
+    
+    // 设置加速度计量程 ±8g
+    if(!MPU6050_WriteReg(ACCEL_CONFIG, 0x10)) {
+        return 0;
+    }
+    
+    DelayMS(100);
+    return 1;  // 初始化成功
+}
+
+// 修正：读取MPU6050数据函数
+bit MPU6050_ReadData(void)
+{
+    unsigned char buf[14];
+    unsigned char i;
+    bit ack_flag;
+    
+    I2C_Start();
+    I2C_SendByte(MPU6050_ADDR);
+    ack_flag = I2C_WaitAck();
+    if(ack_flag) {
+        I2C_Stop();
+        return 0;
+    }
+    
+    I2C_SendByte(ACCEL_XOUT_H);
+    ack_flag = I2C_WaitAck();
+    if(ack_flag) {
+        I2C_Stop();
+        return 0;
+    }
+    
+    I2C_Start();
+    I2C_SendByte(MPU6050_ADDR | 0x01);
+    ack_flag = I2C_WaitAck();
+    if(ack_flag) {
+        I2C_Stop();
+        return 0;
+    }
+    
+    // 修正：正确读取14个字节数据
+    for(i = 0; i < 14; i++)
+    {
+        buf[i] = I2C_RecvByte();
+        if(i < 13) {
+            I2C_Ack();  // 前13个字节发送ACK
+        } else {
+            I2C_NAck(); // 最后一个字节发送NACK
+        }
+    }
+    I2C_Stop();
+    
+    // 修正：确保正确的数据组合顺序
+    // MPU6050数据寄存器顺序：ACCEL_XOUT_H, ACCEL_XOUT_L, ACCEL_YOUT_H, ACCEL_YOUT_L, 
+    // ACCEL_ZOUT_H, ACCEL_ZOUT_L, TEMP_OUT_H, TEMP_OUT_L,
+    // GYRO_XOUT_H, GYRO_XOUT_L, GYRO_YOUT_H, GYRO_YOUT_L, GYRO_ZOUT_H, GYRO_ZOUT_L
+    acc_x = (buf[0] << 8) | buf[1];
+    acc_y = (buf[2] << 8) | buf[3];
+    acc_z = (buf[4] << 8) | buf[5];
+    temp = (buf[6] << 8) | buf[7];
+    gyro_x = (buf[8] << 8) | buf[9];
+    gyro_y = (buf[10] << 8) | buf[11];
+    gyro_z = (buf[12] << 8) | buf[13];
+    
+    return 1;
+}
+
+// 获取MPU6050温度值（摄氏度）
+float MPU6050_GetTemperature(void)
+{
+    return (temp / 340.0) + 36.53;
+}
+
+// 测试函数：单独读取并打印每个传感器的原始值用于调试
+void MPU6050_DebugRead(void)
+{
+    unsigned char i;
+    short raw_data;
+    
+    UART_SendString("Debug - Reading individual registers:\r\n");
+    
+    // 读取加速度计各轴
+    for(i = 0; i < 3; i++) {
+        raw_data = (MPU6050_ReadReg(ACCEL_XOUT_H + i*2) << 8) | MPU6050_ReadReg(ACCEL_XOUT_L + i*2);
+        printf("Acc%d raw: %d\r\n", i, raw_data);
+    }
+    
+    // 读取陀螺仪各轴
+    for(i = 0; i < 3; i++) {
+        raw_data = (MPU6050_ReadReg(GYRO_XOUT_H + i*2) << 8) | MPU6050_ReadReg(GYRO_XOUT_L + i*2);
+        printf("Gyro%d raw: %d\r\n", i, raw_data);
+    }
+}
+
+// 主函数
+void main(void)
+{
+    unsigned char id;
+    
+    // 系统初始化
+    Uart1_Init();
+    I2C_Init();
+    Timer0_Init();  // 初始化定时器0
+    
+    // 延时确保系统稳定
+    DelayMS(1000);
+    
+    UART_SendString("Initializing MPU6050...\r\n");
+    
+    // 首先尝试读取设备ID
+    id = MPU6050_ReadReg(WHO_AM_I);
+    printf("MPU6050 ID: 0x%02X\r\n", id);
+    
+    if(id == 0x68) {
+        UART_SendString("MPU6050 detected successfully!\r\n");
+        
+        // 初始化MPU6050
+        if(MPU6050_Init()) {
+            UART_SendString("MPU6050 initialized successfully!\r\n");
+            
+            // 调试：单独读取各传感器值
+            MPU6050_DebugRead();
+            DelayMS(1000);
+            
+            UART_SendString("Starting 100ms interval data transmission...\r\n");
+            UART_SendString("Format: AccX,AccY,AccZ,GyroX,GyroY,GyroZ,Temp\r\n");
+        } else {
+            UART_SendString("MPU6050 initialization failed!\r\n");
+            while(1);
+        }
+    } else {
+        printf("MPU6050 detection failed! Expected 0x68, got 0x%02X\r\n", id);
+        UART_SendString("Please check:\r\n");
+        UART_SendString("1. I2C connections (SDA=P3.3, SCL=P3.2)\r\n");
+        UART_SendString("2. Power supply (3.3V)\r\n");
+        UART_SendString("3. Pull-up resistors (4.7k on SDA/SCL)\r\n");
+        while(1);
+    }
+    
+    DelayMS(1000);
+    
+    while(1) {
+        // 检查100ms定时标志
+        if(timer_flag) {
+            timer_flag = 0;  // 清除标志
+            
+            // 读取MPU6050数据
+            if(MPU6050_ReadData()) {
+                // 修正：确保正确的数据输出顺序
+                // 格式：加速度X,Y,Z, 陀螺仪X,Y,Z, 温度
+                printf("%.3f,%.3f,%.3f,", acc_x/4096.0, acc_y/4096.0, acc_z/4096.0);
+                printf("%.3f,%.3f,%.3f,", gyro_x/16.4, gyro_y/16.4, gyro_z/16.4);
+                printf("%.3f\r\n", MPU6050_GetTemperature());
+                
+                count++;  // 计数器递增
+                
+//                // 每50次输出一次原始值用于调试
+//                if(count % 50 == 0) {
+//                    printf("Raw - Acc(%d,%d,%d) Gyro(%d,%d,%d)\r\n", 
+//                           acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z);
+//                }
+            } else {
+                UART_SendString("Error reading MPU6050 data!\r\n");
+            }
+        }
+    }
+}

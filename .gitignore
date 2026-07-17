@@ -1,0 +1,68 @@
+# Local Codex/project metadata
+/.agents/
+/.codex/
+
+# Windows and Office temporary files
+Thumbs.db
+Desktop.ini
+~$*
+*.tmp
+*.temp
+*.bak
+
+# Build and editor output
+**/__pycache__/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.idea/
+**/.vscode/
+**/build/
+**/dist/
+**/Objects/
+**/Listings/
+*.pyc
+*.pyo
+*.obj
+*.o
+*.class
+*.log
+*.uvgui.*
+*.__i
+*.lst
+*.m51
+*.sol
+*.bootinfo
+*.compileinfo
+*.backup
+*.opt
+
+# Videos are kept locally and are not published
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wmv
+
+# Installers and compiled binaries
+*.exe
+*.msi
+*.dll
+*.iso
+*.vmdk
+*.ova
+*.ovf
+
+# Large or proprietary project archives
+*.projectarchive
+
+# Complete third-party SDKs and tooling mirrors
+/3大三/大三上/微机原理课设/esp-at/
+/3大三/大三上/微机原理课设/esp-gitee-tools/
+/3大三/大三上/微机原理课设/AiCube-ISP-v6.96E/
+/3大三/大三上/微机原理课设/串口驱动 串口助手/
+/3大三/大三上/微机原理课设/keygen_new2032/
+
+# Files that exceed GitHub's regular 100 MiB per-file limit
+/2大二/大二下/人工智能/人工智能课大作业.zip
+/1大一/大一下/专数二/华章数学译丛52矩阵分析  原书第2版,（美）RogerA.Horn，（美）CharlesR.Jo.pdf
+/2大二/大二下/视觉伺服/机器人建模和控制 (马克W.斯庞).pdf
