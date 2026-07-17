@@ -1,0 +1,14 @@
+﻿,dtype
+Loan_ID,object
+Gender,object
+Married,object
+Dependents,object
+Education,object
+Self_Employed,object
+ApplicantIncome,int64
+CoapplicantIncome,float64
+LoanAmount,float64
+Loan_Amount_Term,float64
+Credit_History,float64
+Property_Area,object
+Loan_Status,object

@@ -1,0 +1,16 @@
+{
+  "best_model": "Full_RandomForest",
+  "best_metrics": {
+    "model": "Full_RandomForest",
+    "test_RMSE": 0.6567028234299981,
+    "test_MAE": 0.4285487250237195,
+    "test_R2": 0.5246823285907076,
+    "test_NRMSE": 0.10423854340158699,
+    "cv_RMSE_mean": 0.6836121628163424,
+    "cv_RMSE_std": 0.0793850682366652,
+    "cv_MAE_mean": 0.45254306755477225,
+    "cv_R2_mean": 0.4964146028004043
+  },
+  "train_size": 310,
+  "test_size": 78
+}

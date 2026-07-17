@@ -1,0 +1,23 @@
+{
+  "rows": 392,
+  "columns": 8,
+  "missing_values": 0,
+  "duplicates": 0,
+  "transformed_features": 10,
+  "best_k": 2,
+  "final_model": "Agglomerative_Ward",
+  "final_cluster_sizes": {
+    "Fuel-efficient and light": 292,
+    "High-power and heavy": 100
+  },
+  "kmeans_stability": {
+    "mean_ari": 0.9927323025577385,
+    "std_ari": 0.009904202134586936,
+    "min_ari": 0.9792351501649673,
+    "max_ari": 1.0
+  },
+  "pca_pc1_ratio": 0.681856661731562,
+  "pca_pc2_ratio": 0.11760255364272319,
+  "pca_total_ratio": 0.7994592153742852,
+  "final_silhouette": 0.455824249444421
+}

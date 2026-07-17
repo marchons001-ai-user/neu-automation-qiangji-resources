@@ -1,0 +1,43 @@
+
+[gender]
+Class    H    L    M
+gender              
+F       75   24   76
+M       67  103  135
+
+[StageID]
+Class          H   L    M
+StageID                  
+HighSchool    11   8   14
+MiddleSchool  76  54  118
+lowerlevel    55  65   79
+
+[Semester]
+Class      H   L    M
+Semester             
+F         62  77  106
+S         80  50  105
+
+[Relation]
+Class       H    L    M
+Relation               
+Father     42  104  137
+Mum       100   23   74
+
+[ParentAnsweringSurvey]
+Class                    H   L    M
+ParentAnsweringSurvey              
+No                      28  99   83
+Yes                    114  28  128
+
+[ParentschoolSatisfaction]
+Class                       H   L    M
+ParentschoolSatisfaction              
+Bad                        24  84   80
+Good                      118  43  131
+
+[StudentAbsenceDays]
+Class                 H    L    M
+StudentAbsenceDays               
+Above-7               4  116   71
+Under-7             138   11  140

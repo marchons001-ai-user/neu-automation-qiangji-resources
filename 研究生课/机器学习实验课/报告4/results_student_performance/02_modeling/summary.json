@@ -1,0 +1,70 @@
+{
+  "data_shape": [
+    480,
+    17
+  ],
+  "train_size": 384,
+  "test_size": 96,
+  "class_distribution": {
+    "L": 127,
+    "M": 211,
+    "H": 142
+  },
+  "best_model": "SVM_RBF",
+  "best_test_metrics": {
+    "Model": "SVM_RBF",
+    "Accuracy": 0.8020833333333334,
+    "Macro_Precision": 0.8065816997692523,
+    "Macro_Recall": 0.8116694033935413,
+    "Macro_F1": 0.8089776278881585,
+    "Balanced_Accuracy": 0.8116694033935413
+  },
+  "best_cv_metrics": {
+    "Model": "SVM_RBF",
+    "CV_Accuracy_Mean": 0.7833333333333333,
+    "CV_Macro_F1_Mean": 0.7902161610778096,
+    "CV_Balanced_Accuracy_Mean": 0.7917065562967729
+  },
+  "top_features": [
+    {
+      "feature": "absence_above_7",
+      "importance": 0.043925839685043114
+    },
+    {
+      "feature": "absence_parent_risk",
+      "importance": 0.03268636078753823
+    },
+    {
+      "feature": "VisITedResources",
+      "importance": 0.03220520205406421
+    },
+    {
+      "feature": "Discussion",
+      "importance": 0.027155004085194067
+    },
+    {
+      "feature": "relation_mum",
+      "importance": 0.025201242087277975
+    },
+    {
+      "feature": "AnnouncementsView",
+      "importance": 0.02268967612258844
+    },
+    {
+      "feature": "grade_num",
+      "importance": 0.02222706219899947
+    },
+    {
+      "feature": "PlaceofBirth_Jordan",
+      "importance": 0.02102195422083118
+    },
+    {
+      "feature": "is_lower_level",
+      "importance": 0.020436356553965092
+    },
+    {
+      "feature": "announcement_share",
+      "importance": 0.020076636067159637
+    }
+  ]
+}

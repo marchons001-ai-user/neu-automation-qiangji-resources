@@ -1,0 +1,132 @@
+{
+  "data_shape": [
+    614,
+    13
+  ],
+  "missing_cells": 149,
+  "duplicate_rows": 0,
+  "target_counts": {
+    "Y": 422,
+    "N": 192
+  },
+  "train_size": 491,
+  "test_size": 123,
+  "numeric_columns": [
+    "ApplicantIncome",
+    "CoapplicantIncome",
+    "LoanAmount",
+    "Loan_Amount_Term",
+    "Credit_History",
+    "Dependents_Numeric",
+    "TotalIncome",
+    "LogTotalIncome",
+    "LogLoanAmount",
+    "LoanIncomeRatio",
+    "InstallmentProxy",
+    "IncomePerDependent"
+  ],
+  "categorical_columns": [
+    "Gender",
+    "Married",
+    "Dependents",
+    "Education",
+    "Self_Employed",
+    "Property_Area",
+    "HasCoapplicant",
+    "CreditHistoryMissing"
+  ],
+  "best_model": "GradientBoosting",
+  "best_model_details": {
+    "best_model": "GradientBoosting",
+    "confusion_matrix": [
+      [
+        27,
+        11
+      ],
+      [
+        4,
+        81
+      ]
+    ],
+    "classification_report": {
+      "N": {
+        "precision": 0.8709677419354839,
+        "recall": 0.7105263157894737,
+        "f1-score": 0.782608695652174,
+        "support": 38.0
+      },
+      "Y": {
+        "precision": 0.8804347826086957,
+        "recall": 0.9529411764705882,
+        "f1-score": 0.9152542372881356,
+        "support": 85.0
+      },
+      "accuracy": 0.8780487804878049,
+      "macro avg": {
+        "precision": 0.8757012622720898,
+        "recall": 0.8317337461300309,
+        "f1-score": 0.8489314664701548,
+        "support": 123.0
+      },
+      "weighted avg": {
+        "precision": 0.8775100058153457,
+        "recall": 0.8780487804878049,
+        "f1-score": 0.8742743138558873,
+        "support": 123.0
+      }
+    },
+    "test_roc_auc": 0.8808049535603715,
+    "top_features": [
+      {
+        "feature": "Credit_History",
+        "importance_mean": 0.26518279317330534,
+        "importance_std": 0.038471383350786176
+      },
+      {
+        "feature": "LoanIncomeRatio",
+        "importance_mean": 0.07241405981938194,
+        "importance_std": 0.018986280132743387
+      },
+      {
+        "feature": "Property_Area",
+        "importance_mean": 0.010216424027177673,
+        "importance_std": 0.008795823750021432
+      },
+      {
+        "feature": "IncomePerDependent",
+        "importance_mean": 0.005158712166208432,
+        "importance_std": 0.009667948884250334
+      },
+      {
+        "feature": "Dependents",
+        "importance_mean": 0.004621508405926298,
+        "importance_std": 0.009057332424787378
+      },
+      {
+        "feature": "LogLoanAmount",
+        "importance_mean": 0.003642823562493844,
+        "importance_std": 0.00950977191352745
+      },
+      {
+        "feature": "Loan_Amount_Term",
+        "importance_mean": 0.0017838541846901008,
+        "importance_std": 0.007850805618520976
+      },
+      {
+        "feature": "CreditHistoryMissing",
+        "importance_mean": 0.00021679315526036415,
+        "importance_std": 0.0013538728206674473
+      },
+      {
+        "feature": "ApplicantIncome",
+        "importance_mean": 0.000154135881408618,
+        "importance_std": 0.011001633462373577
+      },
+      {
+        "feature": "Married",
+        "importance_mean": 0.0,
+        "importance_std": 0.0
+      }
+    ]
+  }
+}

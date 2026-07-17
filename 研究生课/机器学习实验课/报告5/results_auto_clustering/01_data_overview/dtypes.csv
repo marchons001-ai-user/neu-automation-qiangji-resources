@@ -1,0 +1,9 @@
+﻿,dtype
+mpg,float64
+cylinders,int64
+displacement,float64
+horsepower,int64
+weight,int64
+acceleration,float64
+year,int64
+origin,int64

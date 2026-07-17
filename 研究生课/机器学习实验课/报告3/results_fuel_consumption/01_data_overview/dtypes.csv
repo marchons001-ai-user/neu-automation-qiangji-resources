@@ -1,0 +1,13 @@
+﻿,dtype
+distance,float64
+consume,float64
+speed,int64
+temp_inside,float64
+temp_outside,int64
+specials,object
+gas_type,object
+AC,int64
+rain,int64
+sun,int64
+refill_liters,float64
+refill_gas,object
