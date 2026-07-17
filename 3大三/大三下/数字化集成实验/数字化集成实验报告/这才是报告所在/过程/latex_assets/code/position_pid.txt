@@ -1,0 +1,43 @@
+Network 1
+Network 2
+LD     SM0.1
+MOVB   16#F8, SMB37
+HDEF   0, 9
+MOVD   0, SMD38
+MOVR   0.5925, VD104
+MOVR   1.95, VD112
+MOVR   0.1, VD116
+MOVR   999.0, VD120
+MOVR   0.5, VD124
+
+Network 3
+LD     SM0.0
+MOVD   HC0, AC0
+DTR    AC0, AC0
+/R     2000.0, AC0
+MOVR   AC0, VD100
+
+Network 4
+LD     SM0.0
+PID    VB100, 0
+
+Network 5
+LD     Q0.0
+MOVR   VD108, AC0
+*R     32000.0, AC0
+ROUND  AC0, AC0
+DTI    AC0, VW200
+MOVW   VW200, AQW0
+
+Network 6
+LDD>=  HC0, 1184
+R      Q0.0, 1
+MOVW   0, AQW0
+
+Network 7
+LD     I0.2
+EU
+MOVB   16#C8, SMB37
+MOVD   0, SMD38
+HSC    0
+S      Q0.0, 1

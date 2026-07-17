@@ -1,0 +1,109 @@
+TITLE=
+Network 1 //  用普通计数器 C0 记录 I0.0 的脉冲，100个脉冲为1圈
+LD     I0.0
+LD     C0
+CTU    C0, +100
+
+Network 2 //  每满1圈，C1开始累计，到2圈接通
+LD     C0
+LD     I0.3
+CTU    C1, +2
+
+Network 3 //  每满1圈，C2开始累计，到4圈接通
+LD     C0
+LD     I0.3
+CTU    C2, +4
+
+Network 4 //  每满1圈，C3开始累计，到6圈接通
+LD     C0
+LD     I0.3
+CTU    C3, +6
+
+Network 5 //  每满1圈，C4开始累计，到7圈接通，作为全程结束信号
+LD     C0
+LD     I0.3
+CTU    C4, +7
+
+Network 6 //  启动按钮置位运行标志 M0.0
+LD     I0.2
+AN     C4
+S      M0.0, 1
+
+Network 7 //  到7圈后，复位运行标志 M0.0
+LD     C4
+R      M0.0, 1
+
+Network 8 //  停止/复位按钮复位运行标志 M0.0
+LD     I0.3
+R      M0.0, 1
+
+Network 9 //  运行时，先确保反转关闭
+LD     M0.0
+R      Q0.1, 1
+
+Network 10 //  运行标志有效时，正转输出接通
+LD     M0.0
+S      Q0.0, 1
+
+Network 11 //  运行标志无效时，正转输出断开
+LDN    M0.0
+R      Q0.0, 1
+
+Network 12 //  起始到2圈之间，使用第一挡速度 Q0.2
+LD     M0.0
+AN     C1
+S      Q0.2, 1
+
+Network 13 //  不满足第一挡条件时，关闭 Q0.2
+LDN    M0.0
+O      C1
+R      Q0.2, 1
+
+Network 14 //  2圈到4圈之间，使用第二挡速度 Q0.3
+LD     M0.0
+A      C1
+AN     C2
+S      Q0.3, 1
+
+Network 15 //  不满足第二挡条件时，关闭 Q0.3
+LDN    M0.0
+O      C2
+R      Q0.3, 1
+
+Network 16 //  4圈到7圈之间，使用第三挡速度 Q0.4
+LD     M0.0
+A      C2
+AN     C4
+S      Q0.4, 1
+
+Network 17 //  不满足第三挡条件时，关闭 Q0.4
+LDN    M0.0
+O      C4
+R      Q0.4, 1
+
+Network 18 //  到7圈后，点亮完成指示灯 Q1.0
+LD     C4
+S      Q1.0, 1
+
+Network 19 //  按下停止/复位按钮 I0.3，熄灭完成灯
+LD     I0.3
+R      Q1.0, 1
+
+Network 20 //  按下停止/复位按钮 I0.3，关闭所有速度输出
+LD     I0.3
+R      Q0.2, 1
+R      Q0.3, 1
+R      Q0.4, 1
+
+Network 21 //  按下停止/复位按钮 I0.3，关闭正反转输出
+LD     I0.3
+R      Q0.0, 1
+R      Q0.1, 1
+
+Network 22 //  按下停止/复位按钮 I0.3，复位所有计数器
+LD     I0.3
+R      C0, 1
+R      C1, 1
+R      C2, 1
+R      C3, 1
+R      C4, 1

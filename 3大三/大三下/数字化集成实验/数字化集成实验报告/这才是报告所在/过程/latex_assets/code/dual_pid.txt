@@ -1,0 +1,85 @@
+Network 1
+Network 2
+LD     SM0.1
+MOVB   16#F8, SMB37
+HDEF   0, 9
+MOVD   0, SMD38
+HSC    0
+MOVB   50, SMB34
+ATCH   INT0, 10
+ENI
+MOVW   0, VW100
+
+MOVR   0.0, VD130
+MOVR   0.0, VD154
+
+MOVR   0.3, VD120
+
+MOVR   5.0, VD146
+
+MOVR   0.2, VD150
+
+Network 3
+LD     I0.2
+EU
+MOVB   16#C8, SMB37
+MOVD   0, SMD38
+HSC    0
+MOVR   0.0, VD154
+MOVR   0.0, VD130
+MOVW   1, VW100
+
+Network 4
+
+Network 5
+LDW=   VW100, 1
+MOVR   1200.0, VD104
+
+LDW=   VW100, 1
+AD>=   HC0, 1190
+A      M0.0
+S      M1.1, 1
+
+LD     M1.1
+TON    T37, 5
+
+LD     T37
+R      M1.1, 1
+R      M0.0, 1
+MOVW   2, VW100
+Network 6
+
+Network 7
+LDW=   VW100, 2
+MOVR   0.0, VD104
+
+LDW=   VW100, 2
+AD<=   HC0, 10
+A      M0.0
+S      M1.2, 1
+
+LD     M1.2
+TON    T38, 5
+
+LD     T38
+R      M1.2, 1
+R      M0.0, 1
+MOVW   3, VW100
+Network 8
+
+Network 9
+LDW=   VW100, 3
+MOVR   1200.0, VD104
+
+LDW=   VW100, 3
+AD>=   HC0, 1190
+A      M0.0
+S      M1.3, 1
+
+LD     M1.3
+TON    T39, 5
+
+LD     T39
+R      M1.3, 1
+R      M0.0, 1
+MOVW   4, VW100

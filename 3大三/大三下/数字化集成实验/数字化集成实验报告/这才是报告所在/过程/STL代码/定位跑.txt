@@ -1,0 +1,98 @@
+TITLE=主程序_电机3圈定位跑
+
+// 变量约定
+// M10.0  定位运行标志
+// M10.1  正转启动脉冲
+// M10.2  反转启动脉冲
+// M10.3  正转方向锁存
+// M10.4  反转方向锁存
+// M10.5  到位标志
+// VD100  保存当前编码器计数
+
+Network 1 // 上电首次扫描：初始化 HSC0，A/B 相正交计数，目标值1200
+LD     SM0.1
+MOVB   16#F8, SMB37
+HDEF   0, 9
+MOVD   +0, SMD38
+MOVD   +1200, SMD42
+HSC    0
+
+Network 2 // 正转定位启动按钮，上升沿取一次
+LD     I0.2
+EU
+AN     M10.0
+=      M10.1
+
+Network 3 // 反转定位启动按钮，上升沿取一次
+LD     I0.3
+EU
+AN     M10.0
+=      M10.2
+
+Network 4 // 正转启动：置运行、置方向、清零HSC0当前值
+LD     M10.1
+S      M10.0, 1
+S      M10.3, 1
+R      M10.4, 1
+MOVD   +0, SMD38
+MOVB   16#C0, SMB37
+HSC    0
+
+Network 5 // 反转启动：置运行、置方向、清零HSC0当前值
+LD     M10.2
+S      M10.0, 1
+S      M10.4, 1
+R      M10.3, 1
+MOVD   +0, SMD38
+MOVB   16#C0, SMB37
+HSC    0
+
+Network 6 // 运行中读取当前高速计数值到VD100
+LD     M10.0
+MOVD   HC0, VD100
+
+Network 7 // 到位判断：当前计数 >= 1200
+LDD>=  VD100, +1200
+=      M10.5
+
+Network 8 // 到位后停机
+LD     M10.5
+R      M10.0, 1
+R      M10.3, 1
+R      M10.4, 1
+
+Network 9 // 停止/复位按钮：人工停机并清零计数
+LD     I0.5
+R      M10.0, 1
+R      M10.3, 1
+R      M10.4, 1
+MOVD   +0, SMD38
+MOVB   16#C0, SMB37
+HSC    0
+
+Network 10 // 正转输出：运行中 + 正转方向
+LD     M10.0
+A      M10.3
+=      Q0.0
+
+Network 11 // 反转输出：运行中 + 反转方向
+LD     M10.0
+A      M10.4
+=      Q0.1
+
+Network 12 // 速度输出：定位跑固定走Q0.3这一档
+LD     M10.0
+=      Q0.3
+
+Network 13 // 其余速度档关闭
+LD     SM0.0
+R      Q0.4, 1
+
+Network 14 // 其余速度档关闭
+LD     SM0.0
+R      Q0.5, 1
+
+Network 15 // 到位标志复位：启动新一次运行时自动清掉
+LD     M10.1
+O      M10.2
+R      M10.5, 1

@@ -1,0 +1,67 @@
+TITLE=
+Network 1 
+Network 2 //  用普通计数器 C0 记录 I0.0 的脉冲
+LD     I0.0        // 计数输入 (CU)：只读取 I0.0 (A相) 的脉冲
+LD     C0          // 复位输入 (R)：当 C0 计满 1000 时，自己触发复位
+CTU    C0, +1000   // 预置值 (PV)：1000线编码器，设为1000就是一圈
+
+Network 3 //  计满 1000 个脉冲时，点亮 Q1.0
+LD     C0          // 当 C0 到达 1000 的那个瞬间，C0位接通
+S      Q1.0, 1     // 置位 Q1.0（点亮指示灯）
+
+Network 4 //  灯亮起后，定时器 T37 开始计时 1 秒 (100ms * 10)
+LD     Q1.0        // 只要 Q1.0 亮着
+TON    T37, +10    // 启动 T37，延时 1 秒
+
+Network 5 //  1 秒时间到，熄灭指示灯
+LD     T37         // 当延时到达 1 秒
+R      Q1.0, 1     // 复位 Q1.0（熄灭灯），同时 T37 也会自动复位
+S      Q0.0, 1
+Network 6 
+LDN    C0
+A      I0.2
+S      Q0.3, 1
+Network 7 
+LD     C0
+R      Q0.0, 1
+Network 8 
+LD     C0
+R      Q0.3, 1
+Network 9 
+LD     C0
+A      I0.0
+LD     C2
+CTU    C1, 200
+Network 10 
+LD     C1
+A      I0.0
+LD     C2
+CTU    C2, 300
+Network 11 
+LD     C0
+AN     C1
+S      Q0.1, 1
+Network 12 
+LD     C0
+AN     C1
+S      Q0.3, 1
+Network 13 
+LD     C1
+R      Q0.1, 1
+Network 14 
+LD     C1
+R      Q0.3, 1
+Network 15 
+LD     C1
+AN     C2
+S      Q0.0, 1
+Network 16 
+LD     C1
+AN     C2
+S      Q0.3, 1
+Network 17 
+LD     C2
+R      Q0.0, 1
+Network 18 
+LD     C2
+R      Q0.3, 1

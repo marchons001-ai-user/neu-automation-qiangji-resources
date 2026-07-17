@@ -1,0 +1,112 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[left=2.6cm,right=2.6cm,top=2.6cm,bottom=2.6cm]{geometry}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{caption}
+\setCJKmainfont[BoldFont=SimHei]{SimSun}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0pt}
+\setlength{\emergencystretch}{3em}
+\linespread{1.28}
+\graphicspath{{C:/Users/USER/Desktop/数字化集成实验报告/dual\_report\_assets/}}
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=blue}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\captionsetup{font=small}
+\titleformat{\section}{\zihao{4}\bfseries}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\zihao{-4}\bfseries}{\thesubsection}{0.6em}{}
+\begin{document}
+\begin{titlepage}
+\centering
+\vspace*{2.2cm}
+{\zihao{2}\bfseries 数字化集成控制系统实验报告（实操版）\par}
+\vspace{2.6cm}
+{\zihao{4}班级：强基班 \quad 姓名：匿名 \quad 学号：\par}
+\vspace{1.1cm}
+{\zihao{4}课程名称：数字化集成控制系统\par}
+\vfill
+{\zihao{-4}\today\par}
+\end{titlepage}
+\tableofcontents
+\clearpage
+\section*{摘要与关键词}
+\addcontentsline{toc}{section}{摘要与关键词}
+本报告在前期数字化集成控制系统实验报告的基础上，侧重整理 TP177B 触摸屏的实际组态、变量建立、界面绘制以及与 PLC 联调下载过程，形成一份偏实操过程的实验报告。报告按照“建立连接—定义变量—绘制界面—编写联动程序—下载测试”的顺序展开，结合 WinCC flexible 和 STEP7-Micro/WIN 的真实截图，说明本次实验中触摸屏监控层是如何逐步搭建完成的。结果表明，触摸屏已经能够完成数值显示、状态反馈和操作切换，并与原有运动控制程序实现联动，为系统测试与展示提供了更加直接的实验手段。
+\noindent\textbf{关键词：}WinCC flexible；TP177B；组态连接；变量表；PLC 联调
+\clearpage
+\section*{1 实验目的与环境}
+\addcontentsline{toc}{section}{1 实验目的与环境}
+本次补充实验的目标是在原有定位跑、折返跑、跨栏跑和 PID 控制程序基础上，完成触摸屏组态与 PLC 联调。具体任务包括：建立 TP177B 与 S7-200 PLC 的以太网连接；在 HMI 中创建与 PLC 地址对应的变量；设计运行监控界面；在 PLC 程序中完成通信初始化与模式互锁；最终通过下载测试验证界面显示与程序运行的一致性。
+软件环境主要包括 WinCC flexible Standard 与 STEP7-Micro/WIN，硬件对象包括 TP177B 6'' color PN/DP、S7-200 PLC、变频器和实验台电机装置。前版报告中的硬件与软件总体结构继续有效，因此本次更关注组态实施与联调过程。
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.91\textwidth]{hardware_topology.png}
+\caption{图1 原实验系统的硬件拓扑图}
+\end{figure}
+\section*{2 触摸屏组态实施过程}
+\addcontentsline{toc}{section}{2 触摸屏组态实施过程}
+\subsection*{2.1 建立 HMI 与 PLC 连接}
+首先在 WinCC flexible 中新建项目，选择 TP177B 6'' color PN/DP 作为 HMI 设备，并在“连接”页面建立名为“连接\_1”的通信连接。截图显示，驱动程序选择为 SIMATIC S7 200，接口方式选择以太网，HMI 地址设置为 192.168.1.2，PLC 地址设置为 192.168.1.4。完成后即可形成 HMI 与 PLC 之间的基本通信通道。
+在实际操作中，这一步的关键是保证 HMI 和 PLC 位于同一网段，并且地址不冲突。如果地址配置错误，后续变量刷新就无法正常进行，因此连接页面是整个组态流程的起点。
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.96\textwidth]{hmi_connection.png}
+\caption{图2 HMI 与 PLC 的连接组态页面}
+\end{figure}
+\subsection*{2.2 创建变量并绑定 PLC 地址}
+连接建立完成后，在“变量”页面中逐一创建需要显示或调用的变量。从截图可见，已经配置了 DWord 类型的 VD22、Int 类型的 VW20，以及多项 Bool 类型变量，分别对应 M0.2、M0.3、M0.4 和 Q1.0、Q1.1 等地址。采集周期统一设为 1 s，说明本次组态以实验观察与状态显示为主要目的。
+变量创建时需要特别注意两点：一是数据类型必须与 PLC 内部寄存器或位地址匹配；二是显示用途与变量含义要提前规划清楚。例如，VD22 更适合用于高速计数值显示，VW20 适合绑定模拟量或中间值，而 M 位与 Q 位适合映射成状态灯、按钮触发或模式选择逻辑。
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.96\textwidth]{hmi_variables.png}
+\caption{图3 HMI 变量表与地址绑定结果}
+\end{figure}
+\subsection*{2.3 绘制运行监控界面}
+在画面设计阶段，建立了“运行测试程序”主界面，并布置了三个功能按钮区、高速计数器值显示框、模拟量值显示框、启动输入控件以及“主界面”返回按钮。通过这种布局，可以在一个页面上完成启动控制、模式观察和数据查看，减少操作时的页面切换。
+从实操角度看，画面设计不仅追求美观，更重要的是便于测试。把计数值、模拟量值和按钮区放在同一页，能够使实验者在运行过程中边操作边观察，从而更快发现变量刷新异常、按钮互锁异常或者程序状态切换异常。
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.76\textwidth]{hmi_runtime.png}
+\caption{图4 触摸屏运行界面设计结果}
+\end{figure}
+\section*{3 PLC 联调与程序验证}
+\addcontentsline{toc}{section}{3 PLC 联调与程序验证}
+\subsection*{3.1 通信初始化程序下载}
+在 STEP7-Micro/WIN 中下载 PLC 程序后，可以看到程序中包含 ETH1\_CTRL 通信控制模块以及若干状态切换网络。第一组截图显示，程序在前部网络中通过系统位 SM0.0 触发通信初始化，为触摸屏数据访问提供前提条件。该步骤的意义在于先保证通信功能可用，再进行后续按钮联动和状态切换测试。
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.96\textwidth]{plc_logic_page1.png}
+\caption{图5 PLC 联调程序前段网络截图}
+\end{figure}
+\subsection*{3.2 按钮互锁与运行状态验证}
+另一组网络截图展示了模式按钮与输出线圈的互锁关系。程序围绕 M0.2、M0.3、M0.4 等中间位，配合 I0.2、I0.3、I0.4 等输入信号，实现 Q1.0、Q1.1、Q1.2 的切换控制。实验上，这意味着不同按钮不会在同一时刻同时驱动多个模式，从而避免界面操作与底层输出之间发生冲突。
+从调试流程看，应先下载程序，再观察触摸屏上的变量是否正常刷新，最后通过触摸按钮或外部输入逐项验证互锁效果。如果发现某个模式按钮按下后界面无变化，通常应回到变量表与地址绑定页面检查变量类型和连接名是否一致。
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.96\textwidth]{plc_logic_page2.png}
+\caption{图6 PLC 程序互锁网络下载验证截图}
+\end{figure}
+\section*{4 调试现象与问题处理}
+\addcontentsline{toc}{section}{4 调试现象与问题处理}
+本次组态与联调过程中，最需要关注的问题有三类。第一类是通信类问题，例如 IP 地址配置不在同一网段、连接驱动选择错误或访问点配置不正确；第二类是变量类问题，例如 HMI 变量类型与 PLC 地址不匹配，导致显示异常；第三类是逻辑类问题，例如按钮互锁不充分，造成多个输出状态同时有效。通过新增截图可以看到，这三类关键环节都已经在实验中被实际处理和验证。
+对于整个数字化集成控制系统而言，触摸屏的加入使原有运动控制实验的调试效率明显提高。实验者不必只依赖 PLC 软件在线监视，也可以直接通过界面观察计数与状态变化，因此更适合课堂展示和实验记录。
+\section*{5 与原有控制任务的结合}
+\addcontentsline{toc}{section}{5 与原有控制任务的结合}
+在原有五个实验题中，触摸屏监控界面最直接的作用是为定位跑、折返跑和跨栏跑提供运行状态与计数值显示，为后续位置 PID 和双闭环 PID 提供模拟量显示与状态判断入口。换句话说，本次新增部分不是独立于原系统之外的附加模块，而是把原先偏底层的控制程序进一步做成了可视化、可操作的完整实验系统。
+\section*{6 结论}
+\addcontentsline{toc}{section}{6 结论}
+实操版报告的重点是把组态流程和联调结果写清楚。结合连接页面、变量表、运行界面和 PLC 程序截图可以确认，本次实验已经完成 TP177B 触摸屏与 S7-200 PLC 的基本联调，并能够为原有运动控制任务提供较稳定的人机交互支持。
+\section*{参考文献}
+\addcontentsline{toc}{section}{参考文献}
+\begin{enumerate}
+\item 1西门子（中国）有限公司. S7-200 可编程控制器系统手册[Z].
+\item 2Siemens AG. TP177A/TP177B/OP177B Operating Instructions[Z].
+\item 3WinCC flexible 组态使用资料[Z].
+\item 4数字化集成控制系统实验平台说明资料[Z].
+\end{enumerate}
+\end{document}

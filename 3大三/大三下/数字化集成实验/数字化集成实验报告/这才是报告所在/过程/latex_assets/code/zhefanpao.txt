@@ -1,0 +1,66 @@
+Network 1
+Network 2
+LD     I0.0
+LD     C0
+CTU    C0, +1000
+
+Network 3
+LD     C0
+S      Q1.0, 1
+
+Network 4
+LD     Q1.0
+TON    T37, +10
+
+Network 5
+LD     T37
+R      Q1.0, 1
+S      Q0.0, 1
+Network 6
+LDN    C0
+A      I0.2
+S      Q0.3, 1
+Network 7
+LD     C0
+R      Q0.0, 1
+Network 8
+LD     C0
+R      Q0.3, 1
+Network 9
+LD     C0
+A      I0.0
+LD     C2
+CTU    C1, 200
+Network 10
+LD     C1
+A      I0.0
+LD     C2
+CTU    C2, 300
+Network 11
+LD     C0
+AN     C1
+S      Q0.1, 1
+Network 12
+LD     C0
+AN     C1
+S      Q0.3, 1
+Network 13
+LD     C1
+R      Q0.1, 1
+Network 14
+LD     C1
+R      Q0.3, 1
+Network 15
+LD     C1
+AN     C2
+S      Q0.0, 1
+Network 16
+LD     C1
+AN     C2
+S      Q0.3, 1
+Network 17
+LD     C2
+R      Q0.0, 1
+Network 18
+LD     C2
+R      Q0.3, 1

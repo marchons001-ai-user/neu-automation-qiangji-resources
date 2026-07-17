@@ -1,0 +1,89 @@
+
+
+Network 1
+LD     SM0.1
+MOVB   16#F8, SMB37
+HDEF   0, 9
+MOVD   +0, SMD38
+MOVD   +1200, SMD42
+HSC    0
+
+Network 2
+LD     I0.2
+EU
+AN     M10.0
+=      M10.1
+
+Network 3
+LD     I0.3
+EU
+AN     M10.0
+=      M10.2
+
+Network 4
+LD     M10.1
+S      M10.0, 1
+S      M10.3, 1
+R      M10.4, 1
+MOVD   +0, SMD38
+MOVB   16#C0, SMB37
+HSC    0
+
+Network 5
+LD     M10.2
+S      M10.0, 1
+S      M10.4, 1
+R      M10.3, 1
+MOVD   +0, SMD38
+MOVB   16#C0, SMB37
+HSC    0
+
+Network 6
+LD     M10.0
+MOVD   HC0, VD100
+
+Network 7
+LDD>=  VD100, +1200
+=      M10.5
+
+Network 8
+LD     M10.5
+R      M10.0, 1
+R      M10.3, 1
+R      M10.4, 1
+
+Network 9
+LD     I0.5
+R      M10.0, 1
+R      M10.3, 1
+R      M10.4, 1
+MOVD   +0, SMD38
+MOVB   16#C0, SMB37
+HSC    0
+
+Network 10
+LD     M10.0
+A      M10.3
+=      Q0.0
+
+Network 11
+LD     M10.0
+A      M10.4
+=      Q0.1
+
+Network 12
+LD     M10.0
+=      Q0.3
+
+Network 13
+LD     SM0.0
+R      Q0.4, 1
+
+Network 14
+LD     SM0.0
+R      Q0.5, 1
+
+Network 15
+LD     M10.1
+O      M10.2
+R      M10.5, 1
